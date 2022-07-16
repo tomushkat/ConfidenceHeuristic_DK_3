@@ -29,6 +29,8 @@ effectsize(Model, 'normalized_chi')
 CrossTable(Data$DV_2, format = 'SPSS', chisq = TRUE)
 Model <- chisq.test(table(Data$DV_2), p = c(0.5, 0.5), correct = FALSE)
 Model
+effectsize(Model, 'normalized_chi')
+
 ```
 
 ### First choise * Second choise
@@ -39,10 +41,12 @@ CT(rowFactor = Data$DV_1, colFactor = Data$DV_2)
 # Chnage preferation
 ```{r, warning=FALSE, message=FALSE}
 CrossTable(Data$changeDV, format = 'SPSS', chisq = TRUE)
-Model <- chisq.test(table(Data$changeDV), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model <- chisq.test(table(Data$changeDV), p = c(1 / 3, 1 / 3, 1 / 3), correct = FALSE)
 Model
 effectsize(Model, 'normalized_chi')
 ```
+
+
 
 # Chi square for goodness of fit: DV = Who made more errors
 
@@ -72,7 +76,7 @@ Model
 ## Change preferation
 ```{r, warning=FALSE, message=FALSE}
 CrossTable(Data$changeDV[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
-Model <- chisq.test(table(Data$changeDV[Data$whoErrors == 'knowError']), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model <- chisq.test(table(Data$changeDV[Data$whoErrors == 'knowError']), p = c(1 / 3, 1 / 3, 1 / 3), correct = FALSE)
 Model
 effectsize(Model, 'normalized_chi')
 ```

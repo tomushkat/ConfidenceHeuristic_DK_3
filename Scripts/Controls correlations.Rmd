@@ -25,7 +25,7 @@ indttest(Data$Age, Data$DV_1, Parametric = FALSE)
 ### Second choise * Age
 ```{r, warning=FALSE, message=FALSE}
 
-indttest(Data$Age, Data$DV_2, Parametric = TRUE)
+indttest(Data$Age, Data$DV_2, Parametric = FALSE)
 
 ```
 
@@ -60,21 +60,21 @@ CT(Data$changeDV[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
 
 
 ## Understanding market ~ Avisor preferece: Descriptive statistics + Mann Whintey test
-### First choise * Gender
+### First choise * Understanding market
 ```{r, warning=FALSE, message=FALSE}
 
 indttest(Data$marketUnderstanding, Data$DV_1, Parametric = FALSE)
 
 ```
 
-### Second choise * Gender
+### Second choise * Understanding market
 ```{r, warning=FALSE, message=FALSE}
 
 indttest(Data$marketUnderstanding, Data$DV_2, Parametric = FALSE)
 
 ```
 
-### Change choise * Gender
+### Change choise * Understanding market
 ```{r, warning=FALSE, message=FALSE}
 
 oneWayAnova(Data$marketUnderstanding, Data$changeDV, Parametric = FALSE)
@@ -83,17 +83,17 @@ oneWayAnova(Data$marketUnderstanding, Data$changeDV, Parametric = FALSE)
 
 
 # Logistic regression
-## First choise: Prefere Know ~ METI + IH + Gender + Age + Market Understanding
+## First choise: Prefere Know ~ IH + Gender + Age + Market Understanding
 ```{r, warning=FALSE, message=FALSE}
 
-logReg(Data$DV_1[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('METI', 'IH', 'Gender', 'Age', 'marketUnderstanding')])
+logReg(Data$DV_1[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('IH', 'Gender', 'Age', 'marketUnderstanding')])
 
 ```
 
-## Second choise: Prefere Know ~ METI + IH + Gender + Age + Market Understanding
+## Second choise: Prefere Know ~ IH + Gender + Age + Market Understanding
 ```{r, warning=FALSE, message=FALSE}
 
-logReg(Data$DV_2[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('METI', 'IH', 'Gender', 'Age', 'marketUnderstanding')])
+logReg(Data$DV_2[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c( 'IH', 'Gender', 'Age', 'marketUnderstanding')])
 
 
 ```

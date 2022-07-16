@@ -81,7 +81,7 @@ mutate(METI_1_2 = replaceMETI(METI_1_2, Condition = 'brownKnow', goodChar = TRUE
                                        if_else(marketUnderstanding == '7 - Very familiar', 7, as.numeric(marketUnderstanding)))) %>%
   mutate(faceDecision = if_else(faceDecisionBlue == 'IM_b1V9prTO1mcx6PX', 'Nice', 'notNice')) %>% 
   mutate(DV_1 = if_else(DV_1 == 'Analyst Brown', 'prefereKnow', 'prefereDK'),
-         DV_2 = if_else(DV_2 == 'Analyst Blue', 'prefereKnow', 'prefereDK')) %>%
+         DV_2 = if_else(DV_2 == 'Analyst Brown', 'prefereKnow', 'prefereDK')) %>%
   mutate(changeDV = if_else(DV_1 == 'prefereKnow' & DV_2 == 'prefereKnow', 'prefereKnow',
                             if_else(DV_1 == 'prefereDK' & DV_2 == 'prefereDK', 'prefereDK',
                                     if_else(DV_1 == 'prefereDK' & DV_2 == 'prefereKnow', 'change_To_Know',

@@ -69,7 +69,7 @@ indttest(Data$METI, Data$DV_1, Parametric = FALSE)
 
 ## Second choise * METI 
 ```{r, warning=FALSE, message=FALSE}
-indttest(Data$METI, Data$DV_2, Parametric = TRUE)
+indttest(Data$METI, Data$DV_2, Parametric = FALSE)
 ```
 
 ## Change choise * METI 
@@ -81,12 +81,13 @@ oneWayAnova(Data$METI, Data$changeDV, Parametric = FALSE)
 ### Questions direction is positive to Dont know advisor
 ### All significant with p adjusted for bonfferoni and d > 0.3
 ```{r, warning=FALSE, message=FALSE}
-
+bonfferoniCorrection <- 0.05 / 16
+minimalCohensD <- 0.3
 for (i in c('METI_1_1', 'METI_1_2', 'METI_1_3', 'METI_1_4', 'METI_1_5', 'METI_1_6', 'METI_1_7', 'METI_1_8', 'METI_2_1', 'METI_2_2', 'METI_2_3', 'METI_2_4', 'METI_2_5', 'METI_2_6', 'METI_2_7', 'METI_2_8')) {
   
   test <- t.test(x = Data[, i], mu = 4)
   d    <- effectsize(test)
-  if(test$p.value < (0.05 / 16) & d$d >= 0.3){
+  if(test$p.value < bonfferoniCorrection & d$d >= minimalCohensD){
 
     Mean <- round(mean(Data[, i] %>% unlist()), 1)
     SD   <- round(sd(Data[, i] %>% unlist()), 1)
@@ -113,7 +114,7 @@ indttest(Data$IH, Data$DV_1, Parametric = FALSE)
 
 ### Second choise * Intellectual Humility 
 ```{r, warning=FALSE, message=FALSE}
-indttest(Data$IH, Data$DV_2, Parametric = TRUE)
+indttest(Data$IH, Data$DV_2, Parametric = FALSE)
 ```
 
 ### Change choise * Intellectual Humility 
