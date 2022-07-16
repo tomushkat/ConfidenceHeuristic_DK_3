@@ -1,0 +1,133 @@
+---
+title: "Chi square"
+output:
+  html_document:
+    code_folding: hide
+date: '2022-07-16'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(tidyverse, here, effectsize, psych, gmodels, doSPSS)
+Data <- read_csv(here('Data\\dataForAnalysis.csv'))
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation
+## Table, Model, Effect size
+### First choise
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_1, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_1), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+### Second choise
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_2, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_2), p = c(0.5, 0.5), correct = FALSE)
+Model
+```
+
+### First choise * Second choise
+```{r}
+CT(rowFactor = Data$DV_1, colFactor = Data$DV_2)
+```
+
+# Chnage preferation
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$changeDV, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$changeDV), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for goodness of fit: DV = Who made more errors
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$whoErrors, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$whoErrors), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi', test = 'all')
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation: for Pp who said that the advisor who made more errors is the advisor who know
+## First choise
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_1[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_1[Data$whoErrors == 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+## Second choise
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_2[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_2[Data$whoErrors == 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+Model
+```
+
+## Change preferation
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$changeDV[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$changeDV[Data$whoErrors == 'knowError']), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation: for Pp who said that the two advisors made the same number of mistakes
+```{r, warning=FALSE, message=FALSE}
+# CrossTable(Data$DV_1[Data$whoErrors != 'knowError'], format = 'SPSS', chisq = TRUE)
+# Model <- chisq.test(table(Data$DV_1[Data$whoErrors != 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+# Model
+# effectsize(Model, 'normalized_chi')
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CrossTable(Data$DV_2[Data$whoErrors != 'knowError'], format = 'SPSS', chisq = TRUE)
+# Model <- chisq.test(table(Data$DV_2[Data$whoErrors != 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+# Model
+# effectsize(Model, 'normalized_chi')
+```
+
+
+# Chi square for independece: Advisor preferation * Advisor errors
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$DV_1)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$DV_2)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$changeDV)
+```
+
+# Chi square for goodness of fit: DV = face decision task
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$faceDecision, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$faceDecision), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for independece: Advisor preferation * face decision task
+## First choise
+```{r, warning=FALSE, message=FALSE}
+CT(Data$faceDecision, Data$DV_1)
+```
+
+## Second choise
+```{r, warning=FALSE, message=FALSE}
+CT(Data$faceDecision, Data$DV_2)
+```
+
+## Change preferation
+```{r, warning=FALSE, message=FALSE}
+CT(Data$changeDV, Data$faceDecision)
+```

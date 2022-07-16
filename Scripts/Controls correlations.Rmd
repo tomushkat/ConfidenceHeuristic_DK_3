@@ -1,0 +1,99 @@
+---
+title: "Untitled"
+author: "Tom Mushkat"
+date: '2022-07-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(tidyverse, here, doSPSS)
+Data <- read_csv(here('Data\\dataForAnalysis.csv'))
+```
+
+## Age ~ Avisor preferece: Descriptive statistics + Mann Whintey test
+### First choise * Age
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$Age, Data$DV_1, Parametric = FALSE)
+
+```
+
+### Second choise * Age
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$Age, Data$DV_2, Parametric = TRUE)
+
+```
+
+### Change choise * Age
+```{r, warning=FALSE, message=FALSE}
+
+oneWayAnova(Data$Age, Data$changeDV, Parametric = FALSE)
+
+```
+
+## Gender ~ Avisor preferece: Descriptive statistics + Mann Whintey test
+### First choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$DV_1[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+### Second choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$DV_2[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+### Change choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$changeDV[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+
+## Understanding market ~ Avisor preferece: Descriptive statistics + Mann Whintey test
+### First choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$marketUnderstanding, Data$DV_1, Parametric = FALSE)
+
+```
+
+### Second choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$marketUnderstanding, Data$DV_2, Parametric = FALSE)
+
+```
+
+### Change choise * Gender
+```{r, warning=FALSE, message=FALSE}
+
+oneWayAnova(Data$marketUnderstanding, Data$changeDV, Parametric = FALSE)
+
+```
+
+
+# Logistic regression
+## First choise: Prefere Know ~ METI + IH + Gender + Age + Market Understanding
+```{r, warning=FALSE, message=FALSE}
+
+logReg(Data$DV_1[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('METI', 'IH', 'Gender', 'Age', 'marketUnderstanding')])
+
+```
+
+## Second choise: Prefere Know ~ METI + IH + Gender + Age + Market Understanding
+```{r, warning=FALSE, message=FALSE}
+
+logReg(Data$DV_2[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('METI', 'IH', 'Gender', 'Age', 'marketUnderstanding')])
+
+
+```

@@ -1,0 +1,122 @@
+---
+title: "Questionaires"
+output:
+  html_document:
+    code_folding: hide
+date: '2022-07-15'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse, here, effectsize, psych, gmodels, doSPSS)
+Data <- read_csv(here('Data\\dataForAnalysis.csv'))
+
+```
+
+# METI
+## Reliability
+```{r, warning=FALSE, message=FALSE}
+Data %>% 
+  select(METI_1_1, METI_1_2, METI_1_3, METI_1_4, METI_1_5, METI_1_6, METI_1_7, METI_1_8, METI_2_1, METI_2_2, METI_2_3, METI_2_4, METI_2_5, METI_2_6, METI_2_7, METI_2_8) %>% 
+  alpha()
+```
+
+## METI Total: Descriptive statistics + t.test + effect size + histogram
+### Questions direction is positive to Dont know advisor
+### In Red the mean and median, in blue standard deviation
+```{r, warning=FALSE, message=FALSE}
+
+
+descriptiveStats <- 
+Data %>% 
+  summarise(Mean = round(mean(METI), 2),
+            SD = round(sd(METI), 2),
+            Med = round(median(METI), 2),
+            N =  nrow(Data))
+
+descriptiveStats
+
+Model <- 
+Data %>% 
+  pull(METI) %>% 
+  t.test(mu = 4)
+
+Model
+
+effectsize(Model)
+
+Data %>% 
+  ggplot(aes(x = METI)) + 
+  geom_histogram() + 
+  geom_vline(xintercept = descriptiveStats$Mean, linetype="dotted", 
+                color = "red", size=1.5) + 
+  geom_vline(xintercept = descriptiveStats$Med, linetype="dashed", 
+                color = "red", size=1.5) +
+  geom_vline(xintercept = c(descriptiveStats$Mean + descriptiveStats$SD), linetype="dotted", 
+                color = "blue", size=1.5) + 
+  geom_vline(xintercept = c(descriptiveStats$Mean - descriptiveStats$SD), linetype="dotted", 
+                color = "blue", size=1.5) + 
+  theme_bw()
+```
+
+## First choise * METI 
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$METI, Data$DV_1, Parametric = FALSE)
+```
+
+## Second choise * METI 
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$METI, Data$DV_2, Parametric = TRUE)
+```
+
+## Change choise * METI 
+```{r, warning=FALSE, message=FALSE}
+oneWayAnova(Data$METI, Data$changeDV, Parametric = FALSE)
+```
+
+## METI per question
+### Questions direction is positive to Dont know advisor
+### All significant with p adjusted for bonfferoni and d > 0.3
+```{r, warning=FALSE, message=FALSE}
+
+for (i in c('METI_1_1', 'METI_1_2', 'METI_1_3', 'METI_1_4', 'METI_1_5', 'METI_1_6', 'METI_1_7', 'METI_1_8', 'METI_2_1', 'METI_2_2', 'METI_2_3', 'METI_2_4', 'METI_2_5', 'METI_2_6', 'METI_2_7', 'METI_2_8')) {
+  
+  test <- t.test(x = Data[, i], mu = 4)
+  d    <- effectsize(test)
+  if(test$p.value < (0.05 / 16) & d$d >= 0.3){
+
+    Mean <- round(mean(Data[, i] %>% unlist()), 1)
+    SD   <- round(sd(Data[, i] %>% unlist()), 1)
+
+    Data[, i] %>% unlist() %>% hist(main = paste0(i, '; Mean=', Mean, ', SD=', SD, ', d=', round(d$d, 2)))
+  }
+}
+
+```
+
+# Intellectual Humility
+## Reliability
+```{r, warning=FALSE, message=FALSE}
+Data %>% 
+  select(IH_1, IH_2, IH_3, IH_4, IH_5, IH_6) %>% 
+  alpha()
+```
+
+## Intellectual Humility ~ Avisor preferece: Descriptive statistics + Mann Whintey test
+### First choise * Intellectual Humility 
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$IH, Data$DV_1, Parametric = FALSE)
+```
+
+### Second choise * Intellectual Humility 
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$IH, Data$DV_2, Parametric = TRUE)
+```
+
+### Change choise * Intellectual Humility 
+```{r, warning=FALSE, message=FALSE}
+oneWayAnova(Data$IH, Data$changeDV, Parametric = FALSE)
+```
