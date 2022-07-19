@@ -1,0 +1,378 @@
+---
+title: "EX 3"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+editor: visual
+toc: true
+toc-depth: 2
+toc-title: Contents
+---
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(tidyverse, here, effectsize, psych, gmodels, doSPSS)
+Data <- read_csv(here('Data\\dataForAnalysis.csv'))
+
+```
+
+# METI
+
+## Reliability
+
+```{r, warning=FALSE, message=FALSE}
+METI <- 
+Data %>% 
+  select(METI_1_1, METI_1_2, METI_1_3, METI_1_4, METI_1_5, METI_1_6, METI_1_7, METI_1_8, METI_2_1, METI_2_2, METI_2_3, METI_2_4, METI_2_5, METI_2_6, METI_2_7, METI_2_8) %>% 
+  alpha()
+
+METI$total
+```
+
+## METI Total: Descriptive statistics + t.test + effect size + histogram
+
+### Questions direction is positive to Dont know advisor
+
+```{r, warning=FALSE, message=FALSE}
+
+
+descriptiveStats <- 
+Data %>% 
+  summarise(Mean = round(mean(METI), 2),
+            SD = round(sd(METI), 2),
+            Med = round(median(METI), 2),
+            N =  nrow(Data))
+
+descriptiveStats
+
+Model <- 
+Data %>% 
+  pull(METI) %>% 
+  t.test(mu = 4)
+
+Model
+
+effectsize(Model)
+
+Data %>% 
+  ggplot(aes(x = METI)) + 
+  geom_histogram() + 
+  geom_vline(xintercept = descriptiveStats$Mean, linetype="dotted", 
+                color = "red", size=1.5) + 
+  geom_vline(xintercept = descriptiveStats$Med, linetype="dashed", 
+                color = "red", size=1.5) +
+  geom_vline(xintercept = c(descriptiveStats$Mean + descriptiveStats$SD), linetype="dotted", 
+                color = "blue", size=1.5) + 
+  geom_vline(xintercept = c(descriptiveStats$Mean - descriptiveStats$SD), linetype="dotted", 
+                color = "blue", size=1.5) + 
+  theme_bw()
+```
+
+## First choice \* METI
+
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$METI, Data$DV_1, Parametric = FALSE)
+```
+
+## Second choice \* METI
+
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$METI, Data$DV_2, Parametric = FALSE)
+```
+
+## Change choice \* METI
+
+```{r, warning=FALSE, message=FALSE}
+oneWayAnova(Data$METI, Data$changeDV, Parametric = FALSE)
+```
+
+## METI per question
+
+### Questions direction is positive to Dont know advisor
+
+### All significant with p adjusted for bonfferoni
+
+```{r, warning=FALSE, message=FALSE}
+bonfferoniCorrection <- 0.05 / 16
+minimalCohensD <- 0.3
+for (i in c('METI_1_1', 'METI_1_2', 'METI_1_3', 'METI_1_4', 'METI_1_5', 'METI_1_6', 'METI_1_7', 'METI_1_8', 'METI_2_1', 'METI_2_2', 'METI_2_3', 'METI_2_4', 'METI_2_5', 'METI_2_6', 'METI_2_7', 'METI_2_8')) {
+  Y <- Data[, i] %>% unlist()
+  test <- wilcox.test(x = Y, mu = 4)
+  # d    <- effectsize(test)
+  if(test$p.value < bonfferoniCorrection ){  # d$d >= minimalCohensD
+
+    Mean <- round(mean(Data[, i] %>% unlist()), 1)
+    SD   <- round(sd(Data[, i] %>% unlist()), 1)
+
+    Data[, i] %>% unlist() %>% hist(main = paste0(i, '; Mean=', Mean, ', SD=', SD))
+    
+    # Data[, i] %>% unlist() %>% hist(main = paste0(i, '; Mean=', Mean, ', SD=', SD, ', d=', round(d$d, 2)))
+  }
+}
+
+```
+
+# Intellectual Humility
+
+## Reliability
+
+```{r, warning=FALSE, message=FALSE}
+IH <- 
+Data %>% 
+  select(IH_1, IH_2, IH_3, IH_4, IH_5, IH_6) %>% 
+  alpha()
+IH$total
+```
+
+## Intellectual Humility \~ Advisor preference: Descriptive statistics + Mann Whintey test
+
+### First choice \* Intellectual Humility
+
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$IH, Data$DV_1, Parametric = FALSE)
+```
+
+### Second choice \* Intellectual Humility
+
+```{r, warning=FALSE, message=FALSE}
+indttest(Data$IH, Data$DV_2, Parametric = FALSE)
+```
+
+### Change choice \* Intellectual Humility
+
+```{r, warning=FALSE, message=FALSE}
+oneWayAnova(Data$IH, Data$changeDV, Parametric = FALSE)
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation
+
+## Table, Model, Effect size
+
+### First choice
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_1, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_1), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+### Second choice
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_2, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_2), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+
+```
+
+### First choice \* Second choice
+
+```{r}
+CT(rowFactor = Data$DV_1, colFactor = Data$DV_2)
+```
+
+# Change preferation
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$changeDV, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$changeDV), p = c(1 / 3, 1 / 3, 1 / 3), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for goodness of fit: DV = Who made more errors
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$whoErrors, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$whoErrors), p = c(0.25, 0.25, 0.25, 0.25), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi', test = 'all')
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation: for Pp who said that the advisor who made more errors is the advisor who know
+
+## First choice
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_1[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_1[Data$whoErrors == 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+## Second choice
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$DV_2[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$DV_2[Data$whoErrors == 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+Model
+```
+
+## Change preferation
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$changeDV[Data$whoErrors == 'knowError'], format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$changeDV[Data$whoErrors == 'knowError']), p = c(1 / 3, 1 / 3, 1 / 3), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for goodness of fit: DV = Advisor preferation: for Pp who said that the two advisors made the same number of mistakes
+
+```{r, warning=FALSE, message=FALSE}
+# CrossTable(Data$DV_1[Data$whoErrors != 'knowError'], format = 'SPSS', chisq = TRUE)
+# Model <- chisq.test(table(Data$DV_1[Data$whoErrors != 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+# Model
+# effectsize(Model, 'normalized_chi')
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CrossTable(Data$DV_2[Data$whoErrors != 'knowError'], format = 'SPSS', chisq = TRUE)
+# Model <- chisq.test(table(Data$DV_2[Data$whoErrors != 'knowError']), p = c(0.5, 0.5), correct = FALSE)
+# Model
+# effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for independence: Advisor preferation \* Advisor errors
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$DV_1)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$DV_2)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# CT(Data$whoErrors, Data$changeDV)
+```
+
+# Chi square for goodness of fit: DV = face decision task
+
+```{r, warning=FALSE, message=FALSE}
+CrossTable(Data$faceDecision, format = 'SPSS', chisq = TRUE)
+Model <- chisq.test(table(Data$faceDecision), p = c(0.5, 0.5), correct = FALSE)
+Model
+effectsize(Model, 'normalized_chi')
+```
+
+# Chi square for independence: Advisor preferation \* face decision task
+
+## First choice
+
+```{r, warning=FALSE, message=FALSE}
+CT(Data$faceDecision, Data$DV_1)
+```
+
+## Second choice
+
+```{r, warning=FALSE, message=FALSE}
+CT(Data$faceDecision, Data$DV_2)
+```
+
+## Change preferation
+
+```{r, warning=FALSE, message=FALSE}
+CT(Data$changeDV, Data$faceDecision)
+```
+
+# Controls
+
+## Age \~ Avisor preferece: Descriptive statistics + Mann Whintey test
+
+### First choice \* Age
+
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$Age, Data$DV_1, Parametric = FALSE)
+
+```
+
+### Second choice \* Age
+
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$Age, Data$DV_2, Parametric = FALSE)
+
+```
+
+### Change choise \* Age
+
+```{r, warning=FALSE, message=FALSE}
+
+oneWayAnova(Data$Age, Data$changeDV, Parametric = FALSE)
+
+```
+
+## Gender \~ Avisor preferece: Descriptive statistics + Mann Whintey test
+
+### First choice \* Gender
+
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$DV_1[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+### Second choice \* Gender
+
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$DV_2[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+### Change choice \* Gender
+
+```{r, warning=FALSE, message=FALSE}
+
+CT(Data$changeDV[Data$Gender != 'Other'], Data$Gender[Data$Gender != 'Other'])
+
+```
+
+## Understanding market \~ Avisor preference: Descriptive statistics + Mann Whintey test
+
+### First choice \* Understanding market
+
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$marketUnderstanding, Data$DV_1, Parametric = FALSE)
+
+```
+
+### Second choice \* Understanding market
+
+```{r, warning=FALSE, message=FALSE}
+
+indttest(Data$marketUnderstanding, Data$DV_2, Parametric = FALSE)
+
+```
+
+### Change choice \* Understanding market
+
+```{r, warning=FALSE, message=FALSE}
+
+oneWayAnova(Data$marketUnderstanding, Data$changeDV, Parametric = FALSE)
+
+```
+
+# Multivariate models
+
+## First choice: Prefere Know \~ IH + Gender + Age + Market Understanding
+
+```{r, warning=FALSE, message=FALSE}
+
+logReg(Data$DV_1[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c('IH', 'Gender', 'Age', 'marketUnderstanding')])
+
+```
+
+## Second choice: Prefere Know \~ IH + Gender + Age + Market Understanding
+
+```{r, warning=FALSE, message=FALSE}
+
+logReg(Data$DV_2[Data$Gender != 'Other'], Predictors = Data[Data$Gender != 'Other', c( 'IH', 'Gender', 'Age', 'marketUnderstanding')])
+
+
+```
